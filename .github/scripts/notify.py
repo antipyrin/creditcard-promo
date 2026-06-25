@@ -51,7 +51,15 @@ def _load_dotenv() -> None:
     env_file = ROOT / ".env"
     if not env_file.exists():
         return
-    for line in env_file.read_text(encoding="utf-8").splitlines():
+    # 兼容 PowerShell 的 UTF-16 和 UTF-8
+    raw = env_file.read_bytes()
+    if len(raw) >= 2 and raw[:2] == b'\xff\xfe':
+        text = raw.decode("utf-16-le")
+    elif len(raw) >= 3 and raw[:3] == b'\xef\xbb\xbf':
+        text = raw[3:].decode("utf-8")
+    else:
+        text = raw.decode("utf-8")
+    for line in text.splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
             continue
