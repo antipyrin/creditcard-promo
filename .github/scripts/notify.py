@@ -244,8 +244,10 @@ def get_repo() -> str:
 
 
 def build_html_url(repo: str) -> str:
-    """生成 jsDelivr CDN URL（私有仓库不能访问，需要公开）"""
-    return f"https://cdn.jsdelivr.net/gh/{repo}@main/daily-promos/{TODAY}.html"
+    """用 GitHub Pages 托管 HTML 报告（浏览器正确渲染）"""
+    username = repo.split("/")[0]
+    repo_name = repo.split("/")[1]
+    return f"https://{username}.github.io/{repo_name}/daily-promos/{TODAY}.html"
 
 
 def build_raw_url(repo: str) -> str:
