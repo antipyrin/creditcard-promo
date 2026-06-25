@@ -1,0 +1,61 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# 环境与密钥（永远不提交）
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+api_key.txt
+secrets/
+
+# 临时与缓存
+tmp/
+temp/
+*.tmp
+*.bak
+*.log
+.cache/
+
+# workflow 中间产物（每次跑都会变，不应该 commit）
+cache/extracted_*.json
+cache/filtered_*.json
+cache/raw_*.json
+# 但 promos_history.json 需要 commit（跨 workflow 用的去重库）
+
+# 测试产物
+test-upload.html
+screenshots/*.tmp
+pdfs/*.tmp
+
+# 但保留空目录结构（用 .gitkeep）
+!daily-promos/.gitkeep
+!cache/.gitkeep
+!state/.gitkeep
+!screenshots/.gitkeep
+!pdfs/.gitkeep

@@ -1,0 +1,136 @@
+name: 每日信用卡优惠推送
+
+on:
+  # 每天北京时间 07:32 触发（UTC 23:32）
+  schedule:
+    - cron: '32 23 * * *'
+  # 允许手动触发补跑
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: '补跑原因（可选）'
+        required: false
+        type: string
+
+jobs:
+  daily-promo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write   # 用于提交缓存
+      issues: write     # 用于 Issue 自动回复
+
+    steps:
+      - name: 📥 拉取代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 需要完整历史以计算缓存
+
+      - name: 🐍 安装 Python + 依赖
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: ⚡ 配置国内镜像加速
+        run: |
+          pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+          echo "✅ 已配置清华 pip 镜像"
+
+      - name: 📦 安装 Python 依赖
+        run: pip install jinja2 pyyaml requests
+
+      - name: 🔧 安装 minimax CLI
+        run: |
+          echo "安装 mmx CLI..."
+          # minimax 官方安装方式（如 npm 包名是 mmx-cli）
+          if ! command -v mmx &> /dev/null; then
+            npm install -g mmx-cli || pip install mavis-cli || echo "⚠️  minimax CLI 安装失败，请检查包名"
+          fi
+          mmx --version || echo "⚠️  mmx 仍不可用"
+
+      - name: 🔑 配置 minimax 环境
+        run: |
+          echo "MMX_API_KEY=${{ secrets.MMX_API_KEY }}" >> $GITHUB_ENV
+          mmx config set region cn || true
+          echo "✅ minimax 环境已配置"
+
+      - name: 🎯 检查推送开关
+        id: check_enabled
+        run: |
+          python -c "
+          import yaml, sys
+          status = yaml.safe_load(open('state/status.yml', encoding='utf-8'))
+          if not status.get('enabled', False):
+              print('⏸️  推送已暂停，跳过本次执行')
+              sys.exit(0)
+          print(f'✅ 推送开启 · 当前地区: {status.get(\"current_region\", \"shenzhen\")}')
+          "
+
+      - name: 📊 第 0 层 · 配额预检
+        if: steps.check_enabled.outcome == 'success'
+        run: |
+          REMAIN=$(mmx quota show --output json 2>/dev/null | \
+            python -c "
+          import json, sys
+          try:
+              data = json.load(sys.stdin)
+              for m in data.get('model_remains', []):
+                  if m.get('model_name') == 'general':
+                      print(m.get('current_interval_remaining_percent', 100))
+                      break
+              else:
+                  print(100)
+          except:
+              print(100)
+          " 2>/dev/null || echo "100")
+          echo "minimax 配额剩余: ${REMAIN}%"
+          if [ "${REMAIN}" -lt 10 ]; then
+            echo "⚠️ 配额不足 10%，跳过本次推送"
+            exit 0
+          fi
+          echo "✅ 配额充足"
+
+      - name: 📥 第 1 层 · 采集
+        if: steps.check_enabled.outcome == 'success'
+        run: python .github/scripts/collect.py
+
+      - name: 🧠 第 2 层 · 结构化提取
+        if: steps.check_enabled.outcome == 'success'
+        run: python .github/scripts/extract.py
+
+      - name: 🔍 第 3 层 · 去重 + 筛选
+        if: steps.check_enabled.outcome == 'success'
+        run: python .github/scripts/filter.py
+
+      - name: 🎨 第 4 层 · HTML 报告生成
+        if: steps.check_enabled.outcome == 'success'
+        run: python .github/scripts/render.py
+
+      - name: 📤 第 5 层 · 推送
+        if: steps.check_enabled.outcome == 'success'
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          SCT_SENDKEY: ${{ secrets.SCT_SENDKEY }}
+        run: python .github/scripts/notify.py
+
+      - name: 💾 提交缓存与日报
+        if: steps.check_enabled.outcome == 'success'
+        run: |
+          git config user.name "promo-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add cache/ daily-promos/ state/
+          git diff --cached --quiet || git commit -m "chore: 每日优惠 $(date +%Y-%m-%d)"
+          git push
+
+      - name: 📋 失败告警
+        if: failure()
+        run: |
+          echo "❌ 工作流执行失败，请查看日志"
+          # 飞书失败通知（如配了 webhook）
+          if [ -n "${{ secrets.FEISHU_WEBHOOK_URL }}" ]; then
+            curl -sS -X POST "${{ secrets.FEISHU_WEBHOOK_URL }}" \
+              -H "Content-Type: application/json" \
+              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"❌ 信用卡优惠日报执行失败，请查看 GitHub Actions 日志：${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}}"
+          fi

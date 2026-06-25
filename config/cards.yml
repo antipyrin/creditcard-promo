@@ -1,0 +1,60 @@
+# 三张信用卡的卡种配置
+# 用于第 3 层"卡种匹配"——过滤出与用户三张卡相关的活动
+
+cards:
+  - id: boc_greatwall
+    bank: 中国银行
+    card_name: 长城信用卡
+    card_org: 银联
+    card_orgs: [银联, Visa, Mastercard]   # 长城系列可能含双标
+    bin_prefix: [62]                      # 银联 62 开头
+    notes: |
+      - 长城环球通、银联无界等系列
+      - 主要走银联通道，关注银联 U 计划 / 云闪付深圳活动
+    high_value_keywords:
+      - 机场贵宾厅
+      - 酒店礼遇
+      - 接送机
+      - 高铁贵宾厅
+      - 加油返现
+
+  - id: cgb_visa_infinite
+    bank: 广发银行
+    card_name: VISA 鼎极无限卡
+    card_org: Visa
+    card_orgs: [Visa]
+    bin_prefix: [48]                      # Visa 以 4 开头
+    notes: |
+      - 顶级卡，关注 VISA Infinite 全球礼宾权益
+      - 高端酒店 FHR/THC、机场贵宾厅是核心权益
+    high_value_keywords:
+      - 贵宾厅
+      - 礼宾
+      - FHR
+      - The Hotel Collection
+      - 接送
+      - 高端酒店
+      - 免税
+      - 机场
+
+  - id: pingan_mastercard_gold
+    bank: 平安银行
+    card_name: 标准万事达金卡
+    card_org: Mastercard
+    card_orgs: [Mastercard]
+    bin_prefix: [51, 52, 53, 54, 55]      # Mastercard 以 51-55 开头
+    notes: |
+      - 万事达金卡，金卡权益相对较少
+      - 关注平安自营 + 万事达卡 Priceless Experiences
+    high_value_keywords:
+      - 加油
+      - 车主
+      - 视频会员
+      - 美食
+      - 万事达
+
+# 当前用户持卡组合（用于推送时显示）
+current_cards:
+  - boc_greatwall
+  - cgb_visa_infinite
+  - pingan_mastercard_gold

@@ -1,0 +1,66 @@
+name: 接收微信端指令
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  handle-command:
+    # 只响应 OWNER（仓库所有者）的评论，确保只有你能触发
+    if: |
+      contains(github.event.comment.body, '@promo') &&
+      github.event.issue.author_association == 'OWNER'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: 📥 拉取代码
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐍 安装 Python + 依赖
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: ⚡ 配置国内镜像
+        run: pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+      - name: 📦 安装依赖
+        run: pip install pyyaml requests
+
+      - name: 🎯 解析指令并修改状态
+        id: handle
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python .github/scripts/handle_command.py
+
+      - name: 💬 回复 Issue 确认
+        if: steps.handle.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reply = process.env.REPLY_MESSAGE || '✅ 指令已执行';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: reply
+            });
+
+      - name: 💾 提交状态变更
+        if: steps.handle.outcome == 'success'
+        run: |
+          git config user.name "promo-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add state/
+          git diff --cached --quiet || git commit -m "chore: 状态变更 by ${{ github.event.comment.user.login }}"
+          git push

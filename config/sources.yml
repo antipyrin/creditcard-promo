@@ -1,0 +1,163 @@
+# 信息源清单：每家银行所有可抓取的官方渠道
+# workflow 第 1 层会按这个清单逐个抓取
+
+sources:
+  # ──────────── 中国银行 长城信用卡 ────────────
+  - id: boc_official
+    bank: 中国银行
+    name: 中行信用卡官网
+    type: web
+    url: https://creditcard.boc.cn/
+    selectors:
+      list: ".activity-list, .promo-list, .card-news-list"
+      title: "h3, .title"
+      link: "a"
+    purpose: 抓取"优惠活动"栏目 + 长城系列专区
+    priority: high
+
+  - id: boc_global
+    bank: 中国银行
+    name: 中行信用卡 - 长城环球通主题页
+    type: web
+    url: https://creditcard.boc.cn/CreditCard/GlobalCard
+    purpose: 长城系列专属活动
+    priority: high
+
+  - id: boc_wechat
+    bank: 中国银行
+    name: 中国银行信用卡公众号
+    type: search
+    search_queries:
+      - "中国银行信用卡 6月 优惠 深圳"
+      - "中行长城信用卡 2026 活动"
+      - "中国银行信用卡 深圳 商户 满减"
+    purpose: 公众号近期推文 + 区域活动
+    priority: high
+
+  # ──────────── 广发银行 VISA 鼎极无限卡 ────────────
+  - id: cgb_official
+    bank: 广发银行
+    name: 广发信用卡官网
+    type: web
+    url: https://card.cgbchina.com.cn/Channel/23358864
+    purpose: '优惠活动栏目'
+    priority: high
+
+  - id: cgb_djwx
+    bank: 广发银行
+    name: 鼎极无限卡专属页
+    type: web
+    url: https://www.cgbchina.com.cn/
+    search_keywords: [鼎极, 鼎极无限, VISA Infinite]
+    purpose: 鼎极无限卡专属权益
+    priority: high
+
+  - id: cgb_wechat
+    bank: 广发银行
+    name: 广发信用卡公众号
+    type: search
+    search_queries:
+      - "广发信用卡 深圳 优惠 6月"
+      - "广发 鼎极无限 权益"
+      - "发现精彩 深圳 满减"
+      - "广发信用卡 立减 88元"
+    purpose: 公众号推送 + 高频活动
+    priority: high
+
+  - id: visa_infinite_cn
+    bank: VISA
+    name: VISA Infinite 中国官网
+    type: web
+    url: https://www.visa.com.cn/zh-cn/pay-with-visa/promotions
+    purpose: VISA Infinite 全球礼宾权益
+    priority: high
+
+  - id: visa_wechat
+    bank: VISA
+    name: VISA 公众号
+    type: search
+    search_queries:
+      - "VISA Infinite 中国 礼宾"
+      - "VISA 无限卡 机场贵宾厅"
+      - "VISA FHR 酒店 优惠"
+    purpose: VISA Infinite 专属权益
+    priority: medium
+
+  # ──────────── 平安银行 标准万事达金卡 ────────────
+  - id: pingan_official
+    bank: 平安银行
+    name: 平安银行信用卡频道
+    type: web
+    url: https://bank.pingan.com/creditcard/
+    purpose: '精选活动 + 天天优惠'
+    priority: high
+
+  - id: pingan_wechat
+    bank: 平安银行
+    name: 平安银行信用卡公众号
+    type: search
+    search_queries:
+      - "平安信用卡 深圳 优惠 6月"
+      - "平安银行 万事达金卡 权益"
+      - "平安口袋银行 满减 深圳"
+    purpose: 平安信用卡公众号
+    priority: high
+
+  - id: mastercard_cn
+    bank: Mastercard
+    name: 万事达卡中国官网
+    type: web
+    url: https://www.mastercard.com.cn/zh-cn.html
+    purpose: Priceless Experiences、World 权益
+    priority: medium
+
+  - id: mastercard_wechat
+    bank: 万事达卡
+    name: 万事达卡公众号
+    type: search
+    search_queries:
+      - "万事达卡 Priceless 中国"
+      - "万事达 优惠 深圳 6月"
+    purpose: 万事达卡活动
+    priority: medium
+
+  # ──────────── 跨卡本地聚合（深圳优先）────────────
+  - id: unionpay_shenzhen
+    bank: 银联
+    name: 云闪付深圳站
+    type: search
+    search_queries:
+      - "云闪付 深圳 优惠 6月"
+      - "银联 深圳 商户 满减"
+      - "银联 U 计划 深圳"
+    purpose: 云闪付深圳本地商户 + U 计划
+    priority: high
+
+  - id: unionpay_wechat
+    bank: 银联
+    name: 中国银联 / 云闪付公众号
+    type: search
+    search_queries:
+      - "中国银联 优惠 深圳 6月"
+      - "云闪付 深圳 本地 满减"
+    purpose: 银联深圳本地活动
+    priority: medium
+
+  # ──────────── 用户输入 ────────────
+  - id: user_screenshots
+    bank: USER
+    name: 用户截图 OCR
+    type: ocr_dir
+    path: ./screenshots/
+    extensions: [jpg, jpeg, png, webp]
+    purpose: 用户手动截图上传 → minimax vision OCR
+    priority: high
+
+  - id: user_pdfs
+    bank: USER
+    name: 用户 PDF 公告 OCR
+    type: ocr_dir
+    path: ./pdfs/
+    extensions: [pdf]
+    purpose: 银行 PDF 公告 → minimax vision 识别
+    priority: medium

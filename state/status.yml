@@ -1,0 +1,26 @@
+# 推送状态配置
+# 通过 GitHub Issue 评论 @promo + 指令 修改此文件
+
+# 总开关：true 正常推送；false 暂停
+enabled: true
+
+# 当前推送地区：shenzhen / guangzhou / both
+current_region: shenzhen
+
+# 推送时间（北京时间，24 小时制）
+push_time: "07:30"
+
+# 时区（GitHub Actions 用 UTC 触发，需换算）
+# 07:30 北京时间 = 23:30 UTC（前日）
+utc_cron: "32 23 * * *"
+
+# 上次推送日期（避免同一天重复推，机器人自动维护）
+last_pushed_date: ""
+
+# 备用字段
+backup_channels:
+  pushplus: true
+  serverchan: true
+
+# 用户 ID（GitHub Issue 评论鉴权用）
+owner: "antip"

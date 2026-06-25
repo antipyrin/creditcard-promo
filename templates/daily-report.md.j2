@@ -1,0 +1,55 @@
+# 💳 信用卡优惠日报 · {{ date }}（{{ weekday }}）
+
+> 📍 {{ region_name }} · 适用卡：中行长城 / 广发 VISA 鼎极无限 / 平安万事达金
+
+**数据概览**：🌟 高价值 {{ counts.high }} 条 · 🔥 今日可用 {{ counts.today }} 条 · ⏰ 本周过期 {{ counts.weekly }} 条 · 🌐 全国通用 {{ counts.national|default(0) }} 条 · 共 {{ counts.total }} 条
+
+---
+
+{% if groups.high %}
+## 🌟 今日高价值（别错过）
+
+{% for p in groups.high %}
+### {{ loop.index }}. {{ p.bank }} {{ p.card_name }} · {{ p.title }}
+
+- **商户**：{{ p.merchant }}{% if p.address %} · {{ p.address }}{% endif %}
+- **优惠**：{{ p.benefit }}
+- **截止**：{{ p.end_date or '长期' }}
+- **链接**：{{ p.source_url or '无' }}
+
+{% endfor %}
+{% endif %}
+
+{% if groups.today %}
+## 🔥 今日可用 · {{ region_name }}本地
+
+{% for p in groups.today %}
+- **【{{ p.bank }}】{{ p.title }}** · {{ p.merchant or '' }} · {{ p.benefit }}{% if p.end_date %} · 截止 {{ p.end_date }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if groups.weekly %}
+## ⏰ 本周过期
+
+{% for p in groups.weekly %}
+- ⚠️ **{{ p.end_date }} 截止** · 【{{ p.bank }}】{{ p.title }} · {{ p.merchant or '' }} · {{ p.benefit }}
+{% endfor %}
+{% endif %}
+
+{% if groups.national %}
+## 🌐 全国通用
+
+{% for p in groups.national %}
+- **【{{ p.bank }}】{{ p.title }}** · {{ p.benefit }}{% if p.end_date %} · 截止 {{ p.end_date }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if not (groups.high or groups.today or groups.weekly or groups.national) %}
+📭 今天没找到适合 {{ region_name }} 的活动，明天再来看～
+{% endif %}
+
+---
+
+🤖 *由 minimax 自动采集 · 数据来源各银行官方渠道*
+
+⚙️ *想暂停 / 换城市：在 GitHub Issue 评论 `@promo 暂停` / `@promo 切换广州`*
