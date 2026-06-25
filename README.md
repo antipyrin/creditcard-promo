@@ -94,7 +94,7 @@ git init
 git add .
 git commit -m "feat: 初始化信用卡优惠日报工作流"
 git branch -M main
-git remote add origin https://github.com/<你的用户名>/creditcard-promo.git
+git remote add origin https://github.com/antipyrin/creditcard-promo.git
 git push -u origin main
 ```
 

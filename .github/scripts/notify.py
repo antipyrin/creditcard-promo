@@ -227,7 +227,7 @@ HTML 日报全文：
 
 def get_repo() -> str:
     """从环境变量读 GitHub 仓库名"""
-    return os.environ.get("GITHUB_REPOSITORY", "antip/creditcard-promo")
+    return os.environ.get("GITHUB_REPOSITORY", "antipyrin/creditcard-promo")
 
 
 def build_html_url(repo: str) -> str:

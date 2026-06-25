@@ -31,7 +31,7 @@ jobs:
         run: pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
       - name: 📦 安装依赖
-        run: pip install pyyaml requests
+        run: pip install -r requirements.txt
 
       - name: 🎯 解析指令并修改状态
         id: handle
