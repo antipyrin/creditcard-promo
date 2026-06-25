@@ -1,25 +1,30 @@
 """
 第 5 层 · 推送层
-- PushPlus 主通道（国内微信）
-- Server酱备用通道
+- 飞书 webhook 卡片消息（主通道）
+- PushPlus / Server酱备用
 - HTML 报告 URL 用 jsDelivr CDN
 - 增强：上传 HTML 到 minimax + 让 minimax 读 HTML 生成精炼摘要（节省 token）
+- 飞书签名校验：HMAC-SHA256
 
 ⚠️ 关于 minimax file upload：
   - 正确端点是 POST /v1/files/upload + purpose=retrieval
   - mmx CLI 自带的 file upload 用错了端点（/v1/files）会 404
   - 本文件用 Python 直接调 minimax API 绕过 CLI bug
-  - 注意：minimax file storage 不提供公开 URL，仅供 minimax 内部 API 引用
-    因此 HTML 报告的公开访问仍用 jsDelivr CDN
 
 输入：daily-promos/<date>.html, cache/filtered_<date>.json
 环境变量：
-  - PUSHPLUS_TOKEN
-  - SCT_SENDKEY (备用)
-  - GITHUB_REPOSITORY  (自动)
+  - FEISHU_WEBHOOK_URL         （主通道）
+  - FEISHU_SIGNING_SECRET      （飞书签名密钥，如果开启了签名校验）
+  - PUSHPLUS_TOKEN / SCT_SENDKEY （备用）
+  - GITHUB_REPOSITORY            （自动）
 """
+import hashlib
+import hmac
+import base64
+import time
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.request
@@ -293,10 +298,37 @@ def push_pushplus(token: str, title: str, content: str, html_url: str) -> bool:
         return False
 
 
+def _compute_feishu_sign(secret: str) -> tuple:
+    """
+    计算飞书签名校验所需的 timestamp 和 sign
+    算法：sign = base64(HMAC-SHA256(timestamp + "\n" + secret))
+    """
+    ts = str(int(time.time()))
+    string_to_sign = f"{ts}\n{secret}"
+
+    # 飞书文档要求 string_to_sign 是 utf-8 编码
+    hmac_result = hmac.new(
+        string_to_sign.encode("utf-8"),
+        secret.encode("utf-8"),
+        hashlib.sha256,
+    ).digest()
+    sign = base64.b64encode(hmac_result).decode("ascii")
+    return ts, sign
+
+
 def push_feishu(webhook_url: str, card: dict) -> bool:
-    """主通道：推送到飞书自定义机器人（卡片消息）"""
+    """主通道：推送到飞书自定义机器人（卡片消息，自动处理签名校验）"""
     try:
-        body = json.dumps(card, ensure_ascii=False).encode("utf-8")
+        payload = dict(card)  # 浅拷贝避免影响调用方
+
+        # 签名校验（如果配置了 FEISHU_SIGNING_SECRET）
+        secret = os.environ.get("FEISHU_SIGNING_SECRET", "")
+        if secret:
+            ts, sign = _compute_feishu_sign(secret)
+            payload["timestamp"] = ts
+            payload["sign"] = sign
+
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         req = urllib.request.Request(
             webhook_url,
             data=body,
@@ -310,7 +342,6 @@ def push_feishu(webhook_url: str, card: dict) -> bool:
         except json.JSONDecodeError:
             print(f"⚠️  飞书响应非 JSON: {raw[:200]}", file=sys.stderr)
             return False
-        # 飞书 webhook 返回 {"code":0, "msg":"success"} 或 {"StatusCode":0,...}
         code = data.get("code", data.get("StatusCode"))
         if code == 0:
             print(f"✅ 飞书推送成功", file=sys.stderr)

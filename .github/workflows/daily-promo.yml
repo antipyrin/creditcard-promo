@@ -110,6 +110,7 @@ jobs:
         if: steps.check_enabled.outcome == 'success'
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          FEISHU_SIGNING_SECRET: ${{ secrets.FEISHU_SIGNING_SECRET }}
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
           SCT_SENDKEY: ${{ secrets.SCT_SENDKEY }}
         run: python .github/scripts/notify.py
