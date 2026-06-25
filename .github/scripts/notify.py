@@ -306,10 +306,10 @@ def _compute_feishu_sign(secret: str) -> tuple:
     ts = str(int(time.time()))
     string_to_sign = f"{ts}\n{secret}"
 
-    # 飞书文档要求 string_to_sign 是 utf-8 编码
+    # ⚠️ hmac.new(key, msg, digestmod) — 密钥在前，消息在后
     hmac_result = hmac.new(
-        string_to_sign.encode("utf-8"),
         secret.encode("utf-8"),
+        string_to_sign.encode("utf-8"),
         hashlib.sha256,
     ).digest()
     sign = base64.b64encode(hmac_result).decode("ascii")
