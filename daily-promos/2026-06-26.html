@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💳 信用卡优惠日报 · 2026-06-26</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px 12px;
+    color: #333;
+  }
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    color: #fff;
+    padding: 24px 16px 18px;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .header .meta {
+    font-size: 14px;
+    opacity: 0.92;
+    margin: 4px 0;
+  }
+  .header .cards {
+    font-size: 12px;
+    opacity: 0.78;
+    margin-top: 10px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  }
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 20px; }
+  .card-title.high { color: #e74c3c; border-bottom-color: #e74c3c; }
+  .card-title.mid  { color: #f39c12; border-bottom-color: #f39c12; }
+  .card-title.weekly { color: #9b59b6; border-bottom-color: #9b59b6; }
+  .card-title.expires { color: #e67e22; border-bottom-color: #e67e22; }
+  .card-title.national { color: #16a085; border-bottom-color: #16a085; }
+
+  .promo-item {
+    border-left: 3px solid #eee;
+    padding: 10px 0 10px 14px;
+    margin: 10px 0;
+    transition: all .15s;
+  }
+  .promo-item:hover {
+    border-left-color: #667eea;
+    background: #fafbff;
+  }
+  .promo-item.high { border-left-color: #e74c3c; }
+  .promo-item.mid  { border-left-color: #f39c12; }
+
+  .promo-bank {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #f0f4ff;
+    color: #5566cc;
+    margin-right: 6px;
+  }
+  .promo-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 4px 0 6px;
+  }
+  .promo-merchant {
+    font-size: 13px;
+    color: #34495e;
+    margin: 3px 0;
+  }
+  .promo-benefit {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e74c3c;
+    margin: 4px 0;
+  }
+  .promo-meta {
+    font-size: 12px;
+    color: #95a5a6;
+    margin: 4px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .promo-meta .tag {
+    background: #ecf0f1;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+  .promo-meta .tag.expire { background: #fff3e0; color: #e67e22; font-weight: 600; }
+  .promo-meta .tag.today  { background: #ffebee; color: #c0392b; font-weight: 600; }
+  .promo-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #3498db;
+    text-decoration: none;
+    padding: 4px 12px;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+    transition: all .15s;
+  }
+  .promo-link:hover {
+    background: #3498db;
+    color: #fff;
+  }
+
+  .empty {
+    text-align: center;
+    color: #95a5a6;
+    font-size: 13px;
+    padding: 20px;
+  }
+
+  .footer {
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    margin: 24px 0 8px;
+    padding: 0 16px;
+  }
+  .footer .divider {
+    margin: 0 8px;
+    opacity: 0.5;
+  }
+
+  .summary-bar {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .summary-bar .item .num {
+    font-size: 22px;
+    font-weight: 700;
+    color: #667eea;
+  }
+  .summary-bar .item .label {
+    font-size: 11px;
+    color: #95a5a6;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>💳 信用卡优惠日报</h1>
+    <div class="meta">2026-06-26（周五）· 📍 深圳</div>
+    <div class="cards">适用卡：中行长城 / 广发 VISA 鼎极无限 / 平安万事达金</div>
+  </div>
+
+  <div class="summary-bar">
+    <div class="item">
+      <div class="num">0</div>
+      <div class="label">高价值</div>
+    </div>
+    <div class="item">
+      <div class="num">0</div>
+      <div class="label">今日可用</div>
+    </div>
+    <div class="item">
+      <div class="num">0</div>
+      <div class="label">本周过期</div>
+    </div>
+    <div class="item">
+      <div class="num">0</div>
+      <div class="label">总条目</div>
+    </div>
+  </div>
+
+
+
+
+
+  <div class="card">
+    <div class="empty">📭 今天没找到适合 深圳 的活动，明天再来看～</div>
+  </div>
+
+  <div class="footer">
+    🤖 由 minimax 自动采集 · 数据来源各银行官方渠道
+    <span class="divider">|</span>
+    ⚙️ 想暂停 / 换城市：在 GitHub Issue 评论 <code>@promo 暂停</code> / <code>@promo 切换广州</code>
+  </div>
+
+</div>
+</body>
+</html>
